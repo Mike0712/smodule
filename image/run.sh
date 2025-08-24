@@ -80,7 +80,7 @@ get_rtp_endpoints() {
   local url="${CENTRAL_URL}/api/rtp-endpoint/${SELLER_CODE}"
   while true; do
     log "GET ${url}"
-    if EP_JSON="$(curl -fsS "${url}")"; then
+    if EP_JSON="$(curl -fsS -X POST "${url}")"; then
       echo "${EP_JSON}"
       return 0
     fi
