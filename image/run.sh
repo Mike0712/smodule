@@ -182,8 +182,8 @@ while true; do
   fi
 
   # 4) фоновый keepalive
-  keepalive_producers_loop &
-  KAPID=$!
+  # keepalive_producers_loop &
+  # KAPID=$!
 
   # 5) ждём завершения ffmpeg (если упал — перезапустим цикл)
   wait "${FFPID}" || true
