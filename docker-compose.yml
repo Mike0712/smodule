@@ -1,0 +1,13 @@
+services:
+  node:
+    build: ./image
+    container_name: wb-seller-node
+    env_file: ./.env
+    ports:
+      - "9001:9001"   # control agent (lock to central's IP on firewall)
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    volumes:
+      - ./profile:/data/profile
+    restart: unless-stopped

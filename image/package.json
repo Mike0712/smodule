@@ -1,0 +1,13 @@
+{
+  "name": "wb-seller-node",
+  "version": "1.0.0",
+  "private": true,
+  "main": "agent.js",
+  "scripts": {
+    "start:agent": "node agent.js",
+    "health": "node -e \"console.log('ok')\""
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
