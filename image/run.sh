@@ -78,20 +78,21 @@ start_chrome() {
 # =================== RTP ЭНДПОЙНТЫ ОТ CENTRAL ===================
 get_rtp_endpoints() {
   local url="${CENTRAL_URL}/api/rtp-endpoint/${SELLER_CODE}"
+  local body="/tmp/rtp_endpoint_${SELLER_CODE}.json"
+  rm -f "$body"
+
   log "GET ${url}"
-  local rsp status body
-  rsp="$(curl -sS -m 10 -w $'\n%{http_code}' "${url}")" || rsp=$'\n000'
-  status="${rsp##*$'\n'}"
-  body="${rsp%$'\n'"$status"}"
+  local code
+  code=$(curl -sS -m 10 -H 'Accept: application/json' -o "$body" -w '%{http_code}' "$url" || echo 000)
+  local size=$(stat -c%s "$body" 2>/dev/null || echo 0)
 
-  log "endpoint status=${status} body[0..200]=\"$(echo "$body" | head -c 200 | tr '\n' ' ')\""
+  log "endpoint status=${code} size=${size}B first200=\"$(head -c 200 "$body" 2>/dev/null | tr '\n' ' ')\""
 
-  if [ "$status" = "200" ] && [[ "$body" == *"\"video\""* ]] && [[ "$body" == *"\"audio\""* ]]; then
-    echo "$body"
+  if [ "$code" = "200" ] && [ "$size" -gt 0 ]; then
+    cat "$body"   # <— stdout: только JSON!
     return 0
-  else
-    return 1
   fi
+  return 1
 }
 
 # =================== FFMPEG СТАРТ ===================
