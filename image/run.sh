@@ -78,28 +78,20 @@ start_chrome() {
 # =================== RTP ЭНДПОЙНТЫ ОТ CENTRAL ===================
 get_rtp_endpoints() {
   local url="${CENTRAL_URL}/api/rtp-endpoint/${SELLER_CODE}"
-  while true; do
-    log "GET ${url}"
-    # забираем и статус, и тело
-    local rsp status
-    rsp="$(curl -fsS -X POST "${url}")" || true
-    status="${rsp##*$'\n'}"
-    body="${rsp%$'\n'"$status"}"
+  log "GET ${url}"
+  local rsp status body
+  rsp="$(curl -sS -m 10 -w $'\n%{http_code}' "${url}")" || rsp=$'\n000'
+  status="${rsp##*$'\n'}"
+  body="${rsp%$'\n'"$status"}"
 
-    if [ "$status" = "200" ]; then
-      # быстрая проверка на JSON
-      if echo "$body" | jq . >/dev/null 2>&1; then
-        echo "$body"
-        return 0
-      else
-        log "WARN: not JSON (first 200 chars): $(echo "$body" | head -c 200 | tr '\n' ' ')"
-      fi
-    else
-      log "HTTP ${status} from central (first 200 chars): $(echo "$body" | head -c 200 | tr '\n' ' ')"
-    fi
-    log "endpoint not ready, retry in ${RETRY_DELAY_SEC}s…"
-    sleep "${RETRY_DELAY_SEC}"
-  done
+  log "endpoint status=${status} body[0..200]=\"$(echo "$body" | head -c 200 | tr '\n' ' ')\""
+
+  if [ "$status" = "200" ] && [[ "$body" == *"\"video\""* ]] && [[ "$body" == *"\"audio\""* ]]; then
+    echo "$body"
+    return 0
+  else
+    return 1
+  fi
 }
 
 # =================== FFMPEG СТАРТ ===================
