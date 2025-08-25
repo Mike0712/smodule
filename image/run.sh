@@ -176,15 +176,15 @@ start_chrome
 
 log "Entering run loop for ${SELLER_CODE}"
 while true; do
-  # 1) получаем эндпойнты
+  log "[LOOP] step1: fetch endpoints"
   EP_JSON="$(get_rtp_endpoints)"
-  echo "${EP_JSON}" | jq .
+  log "[LOOP] step1 OK"
 
-  # 2) стартуем ffmpeg
+  log "[LOOP] step2: start ffmpeg"
   FFPID="$(start_ffmpeg "${EP_JSON}")"
   log "ffmpeg pid=${FFPID}"
 
-  # 3) регистрируем продюсеров
+  log "[LOOP] step3: register producers"
   if register_producers; then
     log "producers registered"
   else
